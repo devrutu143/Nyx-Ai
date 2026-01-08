@@ -15,7 +15,6 @@ const App: React.FC = () => {
   const [initializing, setInitializing] = useState(true);
 
   // Monitor Auth State
-  // Fix: Restored the truncated useEffect and correctly closed the callback function
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -73,9 +72,18 @@ const App: React.FC = () => {
     return <SplashScreen onComplete={() => setView(user ? 'chat' : 'auth')} />;
   }
 
+  // Prevent black screen if still initializing Firebase after splash
+  if (initializing) {
+    return (
+      <div className="h-screen w-full bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-full bg-black text-white overflow-hidden relative font-sans">
-      {view === 'auth' && !user && (
+      {(view === 'auth' || (view === 'chat' && !user)) && (
         <Auth onSuccess={(u) => { setUser(u); setView('chat'); }} />
       )}
       
@@ -94,11 +102,6 @@ const App: React.FC = () => {
 
       {view === 'about' && (
         <AboutPage onBack={() => setView('chat')} />
-      )}
-      
-      {/* Fallback if user session is lost while in chat */}
-      {view === 'chat' && !user && !initializing && (
-        <Auth onSuccess={(u) => { setUser(u); setView('chat'); }} />
       )}
     </div>
   );
