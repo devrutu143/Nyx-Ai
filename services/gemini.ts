@@ -1,11 +1,18 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Replaced external API_KEY constant with direct process.env.API_KEY access as per guidelines
 export const generateAiResponse = async (prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) => {
   try {
-    // Always use process.env.API_KEY directly in the constructor
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Safety check: process.env might not be defined in static hostings like GitHub Pages
+    // We check if it exists first to prevent a crash
+    const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+    
+    if (!apiKey) {
+      console.error("Nyx Error: API Key is missing. If you are on GitHub, ensure you are using a build tool that injects environment variables.");
+      return "I'm currently having trouble connecting to my brain (API Key missing). Please check the setup instructions.";
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: [
@@ -18,7 +25,6 @@ export const generateAiResponse = async (prompt: string, history: { role: 'user'
       }
     });
 
-    // Directly access the .text property of the response object
     return response.text || "I'm sorry, I couldn't generate a response.";
   } catch (error) {
     console.error("Gemini API Error:", error);
