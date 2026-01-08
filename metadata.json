@@ -1,0 +1,7 @@
+{
+  "name": "Nyx Ai",
+  "description": "A modern, minimalist Android-style chatbot application featuring Gemini AI integration, a sleek black-and-white theme, and smooth native-like animations.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
